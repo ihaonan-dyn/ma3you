@@ -43,13 +43,36 @@
         </div>
       </el-col>
       <el-col :span="12">
-        <div class="grid-content bg-purple-light" >二维码</div>
+
+        <div id="qrcode" ref="qrcode"></div>
       </el-col>
     </el-row>
 
     <div style="display: flex;  height: 200px;">
       <transition name="el-zoom-in-left">
-        <div v-show="show2" class="transition-box">展示</div>
+        <div v-show="show2" class="transition-box">
+          <div class="content_phone">
+            <div style="text-align: center">
+              <h2>057鸿雁唱谱降E调</h2>
+            </div>
+            <div id="content">
+              <div  style="text-align: center;">
+                <audio controls="controls" controlslist="nodownload"   src="https://docs.needhub.cn/group1/design/0e58f48ef8c974da719f72f4eb0edec5.m4a">&nbsp;</audio>
+              </div>
+              <p style="text-align: center;">&nbsp;57何遇程 -G调， 鸿雁 (伴奏)</p>
+              <div class="ckeditor-html5-audio" style="text-align: center;">
+                <audio controls="controls" controlslist="nodownload"   src="https://docs.needhub.cn/group1/design/0e58f48ef8c974da719f72f4eb0edec5.m4a">&nbsp;</audio>
+              </div>
+              <p style="text-align: center;">《鸿雁》 原唱</p>
+              <div class="ckeditor-html5-audio" style="text-align: center;">
+                <audio controls="controls" controlslist="nodownload"   src="https://docs.needhub.cn/group1/design/0e58f48ef8c974da719f72f4eb0edec5.m4a">&nbsp;</audio>
+              </div>
+              <p><a class="btn btn-success btn-block btn-lg ma3youlink" href="https://haokan.baidu.com/v?pd=bjh&amp;vid=5049496589856742485&amp;fr=bjhauthor&amp;type=video">057鸿雁唱谱降E调视频</a></p>
+              <p><a class="btn btn-primary btn-block btn-lg ma3youlink" href="https://haokan.baidu.com/v?pd=bjh&amp;vid=1655995713536288409&amp;fr=bjhauthor&amp;type=video">鸿雁降E调最新唱谱视频</a></p>
+              <p><a class="btn btn-danger btn-block btn-lg ma3youlink" href="https://haokan.baidu.com/v?pd=bjh&amp;vid=10177905235240871096&amp;fr=bjhauthor&amp;type=video">《鸿雁》简谱歌词教唱视频</a></p>
+            </div>
+          </div>
+        </div>
       </transition>
       <transition name="el-zoom-in-right">
         <div v-show="show2" class="transition-box">
@@ -95,7 +118,9 @@
 </template>
 
 <script>
+import QRCode from 'qrcodejs2'
 export default {
+
   data() {
     return {
       search: '',
@@ -133,6 +158,17 @@ export default {
     }
   },
   methods: {
+    qrcode () {
+             let qrcode = new QRCode('qrcode', {
+               width: 100,
+               height: 100, // 高度  [图片上传失败...(image-9ad77b-1525851843730)]
+               text: "https://needhub.cn/" // 二维码内容
+             // render: 'canvas' // 设置渲染方式（有两种方式 table和canvas，默认是canvas）
+             // background: '#f0f'
+              // foreground: '#ff0'
+          })
+              console.log(qrcode)
+        }  ,
     handleAvatarSuccess(res, file) {
       this.imageUrl = URL.createObjectURL(file.raw);
     },
@@ -164,7 +200,10 @@ export default {
     rowClass() {
       return 'text-align: center;'
     }
-  }
+  },
+  mounted() {
+    this.qrcode()
+  },
 }
 </script>
 
@@ -175,7 +214,6 @@ export default {
   height: 350px;
   border-radius: 4px;
   text-align: center;
-  background-color: rgba(255, 214, 64, 0.21);
   padding: 40px 20px;
   box-sizing: border-box;
   margin-right: 20px;
@@ -203,9 +241,11 @@ export default {
   position: relative;
   overflow: hidden;
 }
+
 .avatar-uploader .el-upload:hover {
   border-color: #409EFF;
 }
+
 .avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
@@ -214,9 +254,26 @@ export default {
   line-height: 55px;
   text-align: center;
 }
+
 .avatar {
   width: 55px;
   height: 55px;
   display: block;
 }
+
+.content_phone {
+  width: 93%;
+  height: 100%;
+  margin: auto;
+
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+.ma3youlink {
+  width: 98%;
+  text-align: center;
+  margin: 10px auto;
+}
+
 </style>
