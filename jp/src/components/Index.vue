@@ -43,53 +43,21 @@
         </div>
       </el-col>
       <el-col :span="12">
-
-        <div id="qrcode" ref="qrcode"></div>
+        <Code> </Code>
       </el-col>
     </el-row>
 
     <div style="display: flex;  height: 200px;">
       <transition name="el-zoom-in-left">
         <div v-show="show2" class="transition-box">
-          <Detail :name1="test1"   @listChildChange="childChage"></Detail>
+          <!--详情页面          -->
+          <Detail :name1="test1" @listChildChange="childChage"></Detail>
         </div>
       </transition>
       <transition name="el-zoom-in-right">
         <div v-show="show2" class="transition-box">
-          <el-form :hide-required-asterisk="false" :rules="rules" ref="userForm" :model="form" label-suffix=":"
-                   label-width="80px" size="small">
-            <el-form-item label="ID">
-              <el-input v-model="form.id"></el-input>
-            </el-form-item>
-            <el-form-item label="标题">
-              <el-input v-model="form.name"></el-input>
-            </el-form-item>
-            <el-form-item label="类别">
-              <el-select v-model="form.kind" placeholder="请选择类别">
-                <el-option label="音频" value="1"></el-option>
-                <el-option label="视频" value="2"></el-option>
-                <el-option label="链接" value="3"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="文件名称">
-              <el-input v-model="form.name"></el-input>
-            </el-form-item>
-            <el-form-item label="上传文件">
-              <el-upload
-                class="avatar-uploader"
-                action="https://jsonplaceholder.typicode.com/posts/"
-                :show-file-list="false"
-                :on-success="handleAvatarSuccess"
-                :before-upload="beforeAvatarUpload">
-                <img v-if="imageUrl" :src="imageUrl" class="avatar">
-                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-              </el-upload>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" @click="onSubmit">立即创建</el-button>
-              <el-button>取消</el-button>
-            </el-form-item>
-          </el-form>
+          <!--添加页面          -->
+          <Add></Add>
         </div>
       </transition>
     </div>
@@ -100,30 +68,24 @@
 <script>
 import QRCode from 'qrcodejs2'
 import Detail from "./Detail";
+import Add from "./Add";
+import Code from "./Code";
+
 export default {
-  components: {Detail},
+  components: {
+    Detail,
+    Add,
+    Code
+  },
   data() {
     return {
-      data1:'',
-      test1:'小晨晨',
+      data1: '',
+      test1: '小晨晨',
       search: '',
       imageUrl: '',
       show: false,
       show2: true,
 
-      form: {
-        id: '',
-        name: '',
-        kind: '',
-        address: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
-      },
 
       tableData: [{
         id: '1',
@@ -141,33 +103,11 @@ export default {
     }
   },
   methods: {
-    childChage:function (data){
-      this.data1=data
+    childChage: function (data) {
+      this.data1 = data
     },
-    qrcode () {
-             let qrcode = new QRCode('qrcode', {
-               width: 100,
-               height: 100, // 高度  [图片上传失败...(image-9ad77b-1525851843730)]
-               text: "https://needhub.cn/" // 二维码内容
-             // render: 'canvas' // 设置渲染方式（有两种方式 table和canvas，默认是canvas）
-             // background: '#f0f'
-              // foreground: '#ff0'
-          })
-              console.log(qrcode)
-        }  ,
-    handleAvatarSuccess(res, file) {
-      this.imageUrl = URL.createObjectURL(file.raw);
-    },
-    beforeAvatarUpload(file) {
-      const isJPG = file.type === 'image/jpeg';
-      const isLt2M = file.size / 1024 / 1024 < 2;
 
 
-      if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!');
-      }
-      return isJPG && isLt2M;
-    },
 
     saveUserInfo() {//点击添加时清空信息
 
@@ -187,11 +127,8 @@ export default {
       return 'text-align: center;'
     }
   },
-  mounted() {
-    this.qrcode()
-  },
-  comments:{
-    Detail:Detail
+  comments: {
+    Detail: Detail
   }
 }
 </script>
@@ -259,6 +196,7 @@ export default {
   flex-direction: column;
   min-height: 100%;
 }
+
 .ma3youlink {
   width: 98%;
   text-align: center;
