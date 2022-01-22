@@ -83,8 +83,10 @@ export default {
     //   return isJPG && isLt2M;
     // },
     onSubmit() {
+      this.form.id= parseInt(this.form.id)
+      this.form.kind= parseInt(this.form.kind)
       console.log(this.form)
-          this.$http.post("http://localhost:8989/user/saveOrUpdate", this.form).then(res => {
+          this.$http.post("http://127.0.0.1:8087/jp/new", this.form).then(res => {
             console.log(res.data);
             if (res.data.status) {
               this.$message({
@@ -122,7 +124,9 @@ export default {
                 that.$message.success("文件已上传成功！")
                 // this.imgList.push(res.data.full_url)
                 that.filedata = res_.data
-                that.form.address=that.filedata.full_url
+                that.form.address =res_.data.full_url
+                console.log(that.filedata)
+                console.log(11111)
 
               }).catch(e => {
                 that.$message("文件上传失败")

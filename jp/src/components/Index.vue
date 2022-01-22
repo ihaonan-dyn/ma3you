@@ -3,6 +3,7 @@
     <el-row class="el-card">
       <el-col :span="12">
         <div class="grid-content bg-purple">
+          <!--表格          -->
           <el-table
             :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
             style="width: 680px" :cell-style="rowClass" :header-cell-style="headClass">
@@ -40,11 +41,30 @@
               </template>
             </el-table-column>
           </el-table>
+          <!--分页          -->
+          <el-row>
+            <el-col :span="12" :offset="12">
+              <!--分页组件-->
+              <el-pagination style="margin: 15px 0px;"
+                             background
+                             prev-text="上一页"
+                             next-text="下一页"
+                             layout="prev, pager, next,jumper,total,sizes"
+                             :page-size="size"
+                             :current-page="pageNow"
+                             :page-sizes="[2,4,6,8,10]"
+                             @current-change="findPage"
+                             @size-change="findSize"
+                             :total="total">
+              </el-pagination>
+            </el-col>
+          </el-row>
         </div>
       </el-col>
       <el-col :span="12">
         <Code> </Code>
       </el-col>
+
     </el-row>
 
     <div style="display: flex;  height: 200px;">
@@ -85,30 +105,15 @@ export default {
       imageUrl: '',
       show: false,
       show2: true,
-
-
-      tableData: [{
-        id: '1',
-        name: '标题1',
-      }, {
-        id: '2',
-        name: '标题2',
-      }, {
-        id: '3',
-        name: '标题3',
-      }, {
-        id: '4',
-        name: '标题4',
-      }]
+      tableData: [],
+      size:4,
+      pageNow:1
     }
   },
   methods: {
     childChage: function (data) {
       this.data1 = data
     },
-
-
-
     saveUserInfo() {//点击添加时清空信息
 
     },
@@ -125,6 +130,14 @@ export default {
     // 表格样式设置
     rowClass() {
       return 'text-align: center;'
+    },
+    findAllTableData(page, size) {
+      page = page ? page : this.pageNow,
+        size = size ? size : this.size;
+      this.$http.get("http://localhost:8989/user/findByPage?pageNow="+page+"&pageSize="+size).then(res => {
+        this.tableData = res.data.users;
+        this.total = res.data.total;
+      });
     }
   },
   comments: {
