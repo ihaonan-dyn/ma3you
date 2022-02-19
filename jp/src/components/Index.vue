@@ -1,219 +1,104 @@
 <template>
-  <div>
-    <el-row class="el-card">
-      <el-col :span="12">
-        <div class="grid-content bg-purple">
-          <!--表格          -->
-          <el-table
-            :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
-            style="width: 680px" :cell-style="rowClass" :header-cell-style="headClass">
-            <el-table-column label="ID" width="180" align="center">
-              <template slot-scope="scope"><span style="margin-left: 10px">{{ scope.row.id }}</span></template>
-            </el-table-column>
-            <el-table-column label="标题" width="180" align="center">
-              <template slot-scope="scope"><span style="margin-left: 10px">{{ scope.row.name }}</span></template>
-            </el-table-column>
-            <el-table-column header-align="center" header-width="180">
-              <template slot="header" slot-scope="scope">
-                <el-input
-                  v-model="search"
-                  size="mini"
-                  placeholder="输入标题的关键字进行搜索"/>
-              </template>
-              <template slot-scope="scope">
-                <el-button
-                  size="mini"
-                  @click="handleEdit(scope.$index, scope.row)">二维码
-                </el-button>
-                <el-button
-                  size="mini"
-                  @click="handleEdit(scope.$index, scope.row)">编辑
-                </el-button>
-                <el-button
-                  size="mini"
-                  type="danger"
-                  @click="handleEdit(scope.$index, scope.row)">删除
-                </el-button>
-                <el-button
-                  size="mini"
-                  @click="handleDelete(scope.$index, scope.row)">详情
-                </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-          <!--分页          -->
-          <el-row>
-            <el-col :span="12" :offset="12">
-              <!--分页组件-->
-              <el-pagination style="margin: 15px 0px;"
-                             background
-                             prev-text="上一页"
-                             next-text="下一页"
-                             layout="prev, pager, next,jumper,total,sizes"
-                             :page-size="size"
-                             :current-page="pageNow"
-                             :page-sizes="[2,4,6,8,10]"
-                             @current-change="findPage"
-                             @size-change="findSize"
-                             :total="total">
-              </el-pagination>
-            </el-col>
-          </el-row>
-        </div>
-      </el-col>
-      <el-col :span="12">
-        <Code> </Code>
-      </el-col>
-
-    </el-row>
-
-    <div style="display: flex;  height: 200px;">
-      <transition name="el-zoom-in-left">
-        <div v-show="show2" class="transition-box">
-          <!--详情页面          -->
-          <Detail :name1="test1" @listChildChange="childChage"></Detail>
-        </div>
-      </transition>
-      <transition name="el-zoom-in-right">
-        <div v-show="show2" class="transition-box">
-          <!--添加页面          -->
-          <Add></Add>
-        </div>
-      </transition>
-    </div>
-
+  <div class="list-box">
+    <el-table :data="tableData" style="width: 100%">
+      <el-table-column prop="Id" label="ID"> </el-table-column>
+      <el-table-column prop="Title" label="标题"> </el-table-column>
+      <el-table-column label="操作">
+        <template slot-scope="scoped">
+          <div class="operate">
+            <span v-for="(item, index) in operateBtn" :key="index" @click="operateItem(item,scoped.row)">{{
+              item.label
+            }}</span>
+          </div>
+        </template>
+      </el-table-column>
+    </el-table>
+    <!-- 分页 -->
+    <el-pagination
+      @current-change="handleCurrentChange"
+      :current-page="page.currentPage"
+      :page-size="page.pageSize"
+      layout="total, prev, pager, next, jumper"
+      :total="page.total"
+    >
+    </el-pagination>
   </div>
 </template>
 
 <script>
-import QRCode from 'qrcodejs2'
-import Detail from "./Detail";
-import Add from "./Add";
-import Code from "./Code";
-
+import { getAll,del } from "@/apis/index.js";
 export default {
-  components: {
-    Detail,
-    Add,
-    Code
-  },
   data() {
     return {
-      data1: '',
-      test1: '小晨晨',
-      search: '',
-      imageUrl: '',
-      show: false,
-      show2: true,
-      tableData: [],
-      size:4,
-      pageNow:1
-    }
+      tableData: [], // 表格数据
+      page: {
+        currentPage: 1, // 当前页码
+        pageSize: 10, // 当前每页的条数
+        total: 0, // 宗条目数
+      },
+      operateBtn: [
+        {
+          name: "check",
+          label: "查看",
+        },
+        {
+          name: "detail",
+          label: "详情",
+        },
+        {
+          name: "del",
+          label: "删除",
+        },
+      ],
+    };
+  },
+  mounted() {
+    this.getAllList();
   },
   methods: {
-    childChage: function (data) {
-      this.data1 = data
+    // 换页
+    handleCurrentChange(val) {
+      this.page.currentPage = val;
+      this.getAllList();
     },
-    saveUserInfo() {//点击添加时清空信息
-
+    // 获取列表页
+    async getAllList() {
+      const obj = {
+        pageSize: this.page.pageSize,
+        pageNow: this.page.currentPage,
+      };
+      const res = await getAll(obj);
+      if (res.data.list) {
+        this.tableData = res.data.list;
+        this.page.total = res.data.total_page;
+      }
     },
-    handleEdit(index, row) {
-      console.log(index, row);
+    // 操作按钮事件
+    operateItem(opItem,scope) {
+      if (opItem.name == 'check') {
+        this.$router.push(`/index/code:${scope.Id}`)
+      } else if (opItem.name == 'detail') {
+        this.$router.push(`/index/detail:${scope.Id}`)
+      } else {
+        this.delItem(scope.Id)
+      }
     },
-    handleDelete(index, row) {
-      console.log(index, row);
-    },
-    // 表头样式设置
-    headClass() {
-      return 'text-align: center;background:rgb(242,242,242);color:rgb(140,138,140)'
-    },
-    // 表格样式设置
-    rowClass() {
-      return 'text-align: center;'
-    },
-    findAllTableData(page, size) {
-      page = page ? page : this.pageNow,
-        size = size ? size : this.size;
-      this.$http.get("http://localhost:8989/user/findByPage?pageNow="+page+"&pageSize="+size).then(res => {
-        this.tableData = res.data.users;
-        this.total = res.data.total;
-      });
+    // 删除
+    async delItem(id) {
+      const res = await del({
+        id: id,
+      })
+      if (res.code == 200) {
+        this.getAllList()
+      }
     }
   },
-  comments: {
-    Detail: Detail
-  }
-}
+};
 </script>
 
 <style scoped>
-.transition-box {
-  margin-bottom: 10px;
-  width: 100%;
-  height: 350px;
-  border-radius: 4px;
-  text-align: center;
-  padding: 40px 20px;
-  box-sizing: border-box;
-  margin-right: 20px;
-  font-size: xx-small;
-
+.operate span{
+  padding-left: 0;
+  color: #28b7c4;
 }
-
-.el-row {
-  margin-bottom: 20px;
-  display: flex;
-  flex-wrap: wrap
-}
-
-.el-card {
-  min-width: 100%;
-  height: 260px;
-  margin-right: 20px;
-  transition: all .5s;
-}
-
-.avatar-uploader .el-upload {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-
-.avatar-uploader .el-upload:hover {
-  border-color: #409EFF;
-}
-
-.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 55px;
-  height: 55px;
-  line-height: 55px;
-  text-align: center;
-}
-
-.avatar {
-  width: 55px;
-  height: 55px;
-  display: block;
-}
-
-.content_phone {
-  width: 93%;
-  height: 100%;
-  margin: auto;
-
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-}
-
-.ma3youlink {
-  width: 98%;
-  text-align: center;
-  margin: 10px auto;
-}
-
 </style>

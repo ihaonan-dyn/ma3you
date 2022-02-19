@@ -103,8 +103,6 @@ export default {
               this.$message.error(res.data.msg);
             }
           });
-
-
     },
     filechange(e) {//文件上传
       const that = this
