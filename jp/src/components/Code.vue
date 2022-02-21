@@ -19,7 +19,7 @@ export default {
       let qrcode = new QRCode("qrcode", {
         width: 200,
         height: 200, // 高度  [图片上传失败...(image-9ad77b-1525851843730)]
-        text: window.location.origin + '/' +this.id, // 二维码内容
+        text: window.location.origin + '/#/index/detail:' +this.id, // 二维码内容
       });
     },
     downloadClick() {

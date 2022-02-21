@@ -1,4 +1,5 @@
 <template>
+
 <div>
   <el-form :hide-required-asterisk="false"  ref="userForm" :model="form" label-suffix=":"
            label-width="80px" size="small">
@@ -10,15 +11,15 @@
     </el-form-item>
     <el-form-item label="类别">
       <el-select v-model="form.kind" placeholder="请选择类别">
-        <el-option label="音频" value="1"></el-option>
-        <el-option label="视频" value="2"></el-option>
-        <el-option label="链接" value="3"></el-option>
+        <el-option label="音频" value="1" @click.native="selectnotlink"></el-option>
+        <el-option label="链接" value="2" @click.native="selectlink"></el-option>
+        <el-option label="视频" value="3" @click.native="selectnotlink"></el-option>
       </el-select>
     </el-form-item>
-    <el-form-item label="文件名称">
+    <el-form-item label="资源名称">
       <el-input v-model="form.name"></el-input>
     </el-form-item>
-    <el-form-item label="上传文件">
+    <el-form-item label="上传文件" v-show="filekind">
       <div>
         <span class="add_img">
               <div class="upload_div file_input" v-show="!filedata">
@@ -38,6 +39,9 @@
         </span>
       </div>
     </el-form-item>
+    <el-form-item label="链接地址" v-show="!filekind">
+      <el-input v-model="form.address"></el-input>
+    </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="onSubmit">保存信息</el-button>
       <el-button>取消</el-button>
@@ -51,6 +55,7 @@ export default {
   name: "Add",
   data(){
     return{
+      filekind:true,
       filedata: null,//上传的文件
       fileName: '',//上传的文件名字
       form: {
@@ -86,21 +91,17 @@ export default {
       this.form.id= parseInt(this.form.id)
       this.form.kind= parseInt(this.form.kind)
       console.log(this.form)
-          this.$http.post("http://127.0.0.1:8087/jp/new", this.form).then(res => {
+          this.$http.post("http://39.106.101.15:8088/jp/new", this.form).then(res => {
             console.log(res.data);
-            if (res.data.status) {
+            if (res.data.code) {
               this.$message({
-                message: '恭喜你，' + res.data.msg,
+                message: '恭喜你，' + res.data.message,
                 type: 'success'
               });
               //清空表单信息
-              this.form = {sex: '男'};
-              //隐藏表单
-              this.show = false;
-              //调用刷新数据的方法
-              this.findAllTableData();
+              this.form = {};
             } else {
-              this.$message.error(res.data.msg);
+              this.$message.error(res.data.message);
             }
           });
     },
@@ -114,14 +115,16 @@ export default {
             this.fileName = file.name
             clearInterval(timer)
             var formdate = new FormData()
-            formdate.append("design", file)
+            formdate.append("filename", file)
             if (fileSize < 20) {
               this.filedata = {}
-              this.$http.post((`http://localhost:8083/bucket/design/upload`), formdate,).then(e => {
+              this.$http.post((`http://39.106.101.15:8088/jp/upload`), formdate,).then(e => {
                 const res_ = e.data
+                console.log(e.data)
                 that.$message.success("文件已上传成功！")
                 // this.imgList.push(res.data.full_url)
                 that.filedata = res_.data
+                console.log(res_.data)
                 that.form.address =res_.data.full_url
                 console.log(that.filedata)
                 console.log(11111)
@@ -135,6 +138,12 @@ export default {
           }
         }, 100);
       }
+    },
+    selectlink(){
+      this.filekind=false
+    },
+    selectnotlink(){
+      this.filekind=ture
     },
   }
 }
